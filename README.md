@@ -1,6 +1,4 @@
-### Hi there 👋
-
-- 👋 Hi, Im Joaquim
+### 👋 Hi, Im Joaquim
 - 👀 I’m interested in linux, networking, just general IT
 - 🌱 I’m currently gaining courage for Youtube channel
 - 💞️ I'm messing with Networking(Cisco), and Linux Distro

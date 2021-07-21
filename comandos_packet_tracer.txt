@@ -1,0 +1,210 @@
+comandos para packet tracer terminal 
+USE "?" to "hint of command" 
+USE "TAB" to auto-complete
+
+	Router> //default prompt
+	type "enable" to get root
+	Router/Switch#
+		type "show ip interface brief" to show interface (similar ifconfig)
+		type "show interfaces" OR "show ip interfaces" 
+		type "show vtp status" show status Of Vlan Trunking Protocol
+		type "show vtp password" <- show password of vtp
+		type "show running-config" to show running configuration
+		type "show startup-config" to show startup configuration
+		type "show version" to show version 
+		type "show running-config | section rip" <- show only info related to rip
+	
+	type "configure terminal" to get mode config
+	Router/Switch(config)#
+		type "hostname NAME" to set hostname
+		type "clock set" set clock
+		type "copy running-config startup-config" OR "write" to copy the running config to startup config
+		type "erase startup-config" to delete the startup configuration
+		type "enable secret class" to set password to class (MUST be in config mode)
+		type "exec-timeout minutos segundos"  
+		type "vtp mode server" <- especificar como server
+		type "vtp mode client" <- especificar como client
+		type "vtp version 2" <- especificar versao 2
+		type "vtp password cisco"  <- use password for autentication
+	
+	type "interface serial 0/0/0" <- serial interface configuration
+		type "ip address 192.168.1.1 255.255.255.0" <- to set serial interface ip
+		type "clock rate 64000" <- for interface with DCE (clock)
+		type "no shutdown" to activate the interface
+		
+	type "interface GigabitEthernet 0/0 " to configure interface 
+		type "description" to set description of interface
+		type "ip address 192.168.1.1 " <- inside "interface GigabitEthernet" 
+		type "no shutdown" to activate the interface(need to do this to some vlans)
+	type "line console 0" AND "password cisco" AND "login" to set password on console access
+	type "line vty 0" AND "password cisco" AND "login" to set password on virtual console
+	type "service password-encryption" to encrypt simple text password
+	type "banner motd #" and end with "#" to set banner on login (# is a delimiter)
+	type "interface VLAN 1" to set configuration to interface VLAN1 
+		##usado em switches, para nao enviar stp X interface
+	type "spanning-tree port-fast" 
+	type "spanning-tree bpduguard enable" 
+	
+	type "no ip domain-lookup" don't lookup for domains when wrong command is typed <--
+	
+	Router(config)#
+	type "crypto key generate rsa" to generate rsa key for ssh
+	type "username administrator secret cisco" to create user administrator cisco 
+	type "ip ssh version 2" to set ssh version 2
+	
+	type "ipv6 unicast-routing" ← ativa ipv6 traffic forward-----------------
+	
+	Router(config-line)# (vty lines)
+		type "login local" to use local database for login
+		type "transport input ssh" to use ssh as login 
+	Router(config-line)# (Console lines)
+		type "logging synchronous" - sincronizar mensagens
+	
+	Router#
+		type "arp -d" clear arp table
+		type "arp -a" show arp table
+		type "show vlan brief" show vlans brief
+		type "show interfaces trunk" ← show interfaces "trunking"
+		type "show interface fa0/1 switchport" ← show switchport information for interface
+		type "show cdp neighbors" 
+		type "show port-security" 
+		type "show port-security address"
+		type "show port-security interface fa0/1" <- show port-security information for interface
+		type "show ip protocols" ← mostra os protocolos a rodar
+		type "debug ip rip" 
+		type "debug eigrp fsm"
+		type "show etherchannel summary" <- mostrar as interfaces agregadas, grupo e protocolo
+		type "show etherchannel port-channel"
+		type "show ip eigrp neighbors" ← mostrar os vizinhos EIGRP e estatistica de uptime entre mais
+		type "show ip eigrp topology" 
+		type "show ip eigrp topology all-links"
+		
+			
+	Router(config)#
+		type "ip route network-address subnet-mask ip-address" <- setup static route	
+		type "no ip classless" ← usar IP classless
+		type "ip classless" ← nao usar IPs classless
+
+	RIP PROTOCOL
+	https://www.computernetworkingnotes.com/ccna-study-guide/rip-protocol-configuration-guide-with-examples.html
+	
+		type "router rip" ← enable rip protocol
+	Router(config-router)#
+		type "version 1" <- specify versao 1
+		type "version 2" <- specify versao 2
+		type "network x.x.x.x" ← especifica qual rede a anunciar. So especificar as redes diretamente conectadas
+		type "passive-interface fa0/0" <- to specify which interface doesnt send RIP packets
+		type "default-information originate" <- use this on the router, that is the gateway(wan), to pass the gateway to others. 
+		type "ip summary-address rip 10.0.0.0 255.255.0.0" to manually summarize
+		
+		IPv6 
+		type "ipv6 router rip ..." ← creates and enters rip router configuration
+		
+	RouterX(config-rtr)#
+		type "redistribute static" ← redistribui no RIPng (ipv6), as rotas estaticas
+		
+		
+	RouterX(config-if)#
+		type "ipv6 rip NAME enable" ← configure rip on an interface
+		type "ipv6 rip NAME default-information originate" <- redistribuir rota estatisca
+		
+	EIGRP Protocol
+	https://www.computernetworkingnotes.com/ccna-study-guide/eigrp-tutorial-basic-concept-explained.html
+	(metrics) bandwidth, delay, reliability, load, and maximum transmission unit (MTU)
+		Router(config-router)#
+			type "router eigrp 1" ← especifica eigrp Autonomous system number 1
+			type "network 172.16.0.0" ← especifica qual rede a anunciar
+			type "network 172.16.0.0 0.0.0.3" ← especifica qual rede a anunciar e mascara (mascara invertida) (255.255.255.252)
+			type "redistribute static" <- sem especificar metrica usa metrica default para as rotas. 
+			type "redistribute (protocol OSPF, static, etc) metric 1 1 1 1 1" <- eigrp have to input metric (5 fields) 
+		
+		IPv6
+		RouterX(config)#
+			type "ipv6 router eigrp 1" ← id do eigrp (AS)	
+		RouterX(config-rtr)#
+			type "eigrp router-id 2.2.2.2" ← atribui router ID
+			type "no shutdown" ← para ativar o eigrp ipv6
+			type "redistribute X" ← redistribuir para o EIGRP outro protocolo (usa metrica default)
+			type "redistribute X metric 1 1 1 1 1" <- redistribui protocol X com metrica especificada
+			
+		RouterX(config-if)#
+			type "ipv6 eigrp 1" ← associa interface a eigrp 1 (AS)
+			
+			
+	OSPF Protocol
+	https://www.computernetworkingnotes.com/ccna-study-guide/ospf-fundamental-terminology-explained.html
+			type "router ospf 1" ← ID
+		Router(config-router)#
+			type "network 172.16.1.16 0.0.0.15 area 0" -> network address / wildcard mask (invert of subnet mask) / area ID
+			type "show ip ospf" ← mostrar info de OSPF
+			type "default-information originate" 
+			type "show ip ospf interface" 
+			type "show ip ospf database"
+			
+		RouterX(config)# 
+			type "ipv6 router ospf X" ← id do ospf 
+		RouterX(config-rtr)#
+			type "router-id 2.2.2.2" ← atribui ID ao router (OSPF)
+			type "default-information originate" ← distribuir para a zona OSPF o default gateway
+			
+		RouterX(config-if)#
+			type "ipv6 ospf X area X" ← associa a interface a ID ospf na area X
+	
+	HSRP Protocol
+	https://www.geeksforgeeks.org/hot-standby-router-protocol-hsrp/ 
+		Router(config-router)#
+			type "interface gi0/1" ← especificar a interface que está conectada á LAN
+			R1(config-if)#
+				type "standby version 2" ← especifica a versão 2
+				type "standby 1 ip 192.168.1.254" ← especifica grupo 1, e IP gateway 192.168.1.254
+				type "standby 1 preempt" ← 
+		Router#
+			type "show standby" ← mostrar standby routers
+		
+			
+			
+	S1(config-if)# (inside interface configuration)	
+		type	"switchport mode access" <- switchport to access mode
+		type	"switchport access vlan X" <- assign vlan ID to interface
+		type	"switchport mode trunk" <- switchport to trunk mode
+		type	"switchport trunk native vlan 99" <- use vlan99 as native
+		type	"switchport trunk allowed vlan xx,xx,xx," ← specify allowed vlans to trunk
+		type	"switchport nonegociate" ← desactiva o modo de negociacao
+		type	"no switchport nonegociate" < retira o "nonegociate"
+		
+		ETHERCHANNEL (interfaces mais nas ranges)
+		interface range fa0/1-2 (definir o intervalo de interfaces)
+	S1(config-if)#
+		type	"channel-group 1 mode active" <- give the identification of range as channel-group 1
+		type	"channel-group 1 mode desirable"
+		type	"channel-group 1 mode auto"
+		
+		NOW USE PORT-CHANNEL X to managed the grouped interfaces
+		type	"interface port-channel 1" <- manage the virtual interface
+				
+		
+		PORT SECURITY (only works for ports with mode access)
+		type	"switchport port-security" <- to enable port security in that interface
+		type	"switchport port-security mac-address" <- to statically specify a mac address
+		type	"switchport port-security maximum XX" <- specify the maximum number of macs to allow range(1-132)
+		type	"switchport port-security mac-address sticky" <- learn mac address automatically (dynamic method)
+		type	"switchport port-security violation protect" <- dont log in syslog, nor show error message, nor increase counter, doesnt shutdown port 
+							   "restrict" <- send log to syslog, increase counter, doesnt shutdown port
+							   "shutdown" <- send log to syslog, increase counter, disable port (shutdown)
+							   
+		SPANNING TREE
+	S1(config)#
+		type	"spanning-tree vlan 1,10,30,50,70 root primary" to set S1 to primary root for vlans
+		type	"spanning-tree vlan 1,10,30,50,70 root secundary" to set S1 to primary root for vlans
+		
+		INTER-VLAN ROUTING
+	R1(config)#
+		type	"interface fa0/0.10" criar interface fa0/0.10 a nivel virtual
+		type	"encapsulation dot1q 10" associa a vlan 10
+		type	"ip address IP.Ad MASK" ← associa á interface fa0/0.10 virtual o ip atribuido
+		type	"interface fa0/0" ← voltar á interface fisica e fazer "no shutdown"
+	
+	
+	WHEN CONFIGURING SWITCHES YOU NEED TO SET DEFAULT GATEWAY
+	S1(config)# 
+		type "ip default-gateway" and IP to set gateway of switch 

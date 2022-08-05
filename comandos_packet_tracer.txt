@@ -137,9 +137,9 @@ USE "TAB" to auto-complete
 		Router(config-router)#
 			type "network 172.16.1.16 0.0.0.15 area 0" -> network address / wildcard mask (invert of subnet mask) / area ID
 			type "show ip ospf" ← mostrar info de OSPF
-			type "default-information originate" 
+			type "default-information originate" -> propagar rota padrão (static route ip route 0.0.0.0 0.0.0.0 IPdestino)
 			type "show ip ospf interface" 
-			type "show ip ospf database"
+			type "show ip ospf database" -> mostrar base de dados ospf
 			
 		RouterX(config)# 
 			type "ipv6 router ospf X" ← id do ospf 
@@ -161,8 +161,6 @@ USE "TAB" to auto-complete
 		Router#
 			type "show standby" ← mostrar standby routers
 		
-			
-			
 	S1(config-if)# (inside interface configuration)	
 		type	"switchport mode access" <- switchport to access mode
 		type	"switchport access vlan X" <- assign vlan ID to interface
@@ -197,13 +195,23 @@ USE "TAB" to auto-complete
 		type	"spanning-tree vlan 1,10,30,50,70 root primary" to set S1 to primary root for vlans
 		type	"spanning-tree vlan 1,10,30,50,70 root secundary" to set S1 to primary root for vlans
 		
-		INTER-VLAN ROUTING
+        
+		INTER-VLAN ROUTING (router on a stick)
 	R1(config)#
 		type	"interface fa0/0.10" criar interface fa0/0.10 a nivel virtual
 		type	"encapsulation dot1q 10" associa a vlan 10
 		type	"ip address IP.Ad MASK" ← associa á interface fa0/0.10 virtual o ip atribuido
 		type	"interface fa0/0" ← voltar á interface fisica e fazer "no shutdown"
 	
+        CDP (Cisco discovery protocol)
+    R1#
+        type    "show cdp" para mostrar informações cdp
+        type    "show cdp neighbors" > para mostrar informações dos vizinhos
+        type    "show cdp neighbors detail" > para mostrar informações detalhadas inclusive IPv4 e versao IOS
+    R1(config-if)#
+        type    "cdp enable" para ativar cdp
+
+    
 	
 	WHEN CONFIGURING SWITCHES YOU NEED TO SET DEFAULT GATEWAY
 	S1(config)# 

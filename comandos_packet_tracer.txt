@@ -7,6 +7,7 @@ USE "TAB" to auto-complete
 	Router/Switch#
 		type "show ip interface brief" to show interface (similar ifconfig)
 		type "show interfaces" OR "show ip interfaces" 
+		type "show interfaces status" to show link speed and link status
 		type "show vtp status" show status Of Vlan Trunking Protocol
 		type "show vtp password" <- show password of vtp
 		type "show running-config" to show running configuration

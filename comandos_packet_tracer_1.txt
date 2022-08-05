@@ -1,0 +1,160 @@
+NTP
+	R1(config)# ntp server IP
+
+SNMP
+    R1(config)# snmp-server community testro ro
+    R1(config)# snmp-server community testrw rw
+
+SECURITY
+    R1(config)#
+           security passwords min-length 10 <- tamanho minimo da pass
+
+
+ACL Padrao (já não se deve usar, ACLs padrão só podem filtrar tráfego com base no endereço IP de origem)
+    R1(config)# ip access-list standard STND-1
+    R1(config-std-nacl)# deny 192.168.11.0 0.0.0.255 log (funcao log, não funciona packet tracer)
+
+    R1(config)# interface s0/0/1
+    R1(config-if)# ip access-group STND-1 in (permite o trafego da ACL STND-1 sentido in)
+    R1# show access-lists (mostra todas as acess lists)
+
+    R1(config)# line vty 0 4
+    R1(config-line)# access-clan TASK-5 in (nas linhas vty aceitar trafego das regras acl input)
+
+    
+    
+ACL Extendida (consigo ser mais especifico nos filtros, incluindo qual host a bloquear, por padrão ACL's têm deny all, é preciso adicionar permit para restante trafego funcionar)
+
+    R1(config)# ip access-list extended EXTEND-1
+    R1(config-std-nacl)# deny ip 192.168.10.0 0.0.0.255 host 209.165.200.225 (nao permitir que esta rede, com wildmask, comunique com host)
+
+    R1(config)# interface serial 0/0/0
+    R1(config-if)# ip access-group EXTEND-1 out (na interface s0/0/0 permitir trafego out na ACL indicada)
+
+
+    license boot module c1900 technology-package securityk9  <- (ativar zone firewall router 1941)
+
+
+Zone Based firewalls
+        R1(config)# zone security INSIDE (criar zona com determinado nome)
+    
+    Creating Security Policies (identifica que tipo de trafego/protocolo para fazer match/find)
+        R1(config)# class-map type inspect match-any INSIDE_PROTOCOLS (nome do class map)
+        R1(config-cmap)# match protocol tcp
+        R1(config-cmap)# match protocol udp
+        R1(config-cmap)# match protocol icmp
+
+    Criando as policy-maps (cria as politicas e associas policy map to security policy) (o que vais fazer aos trafego que encontras, deny, pass, inspect)
+        R1(config)# policy-map type inspect INSIDE_TO_INTERNET 
+        R1(config-pmap)# class type inspect INSIDE_PROTOCOLS
+        R1(config-pmap-c)# inspect
+        R1(config)# policy-map type inspect CONFROOM_TO_INTERNET
+        R1(config-pmap)# class type inspect CONFROOM_PROTOCOLS
+        R1(config-pmap-c)# inspect
+
+    Aplicando as politicas de segurança (criar pares de zonas source/destination e qual politica aplicar)
+        R1(config)# zone-pair security INSIDE_TO_INTERNET source INSIDE destination INTERNET
+        R1(config-sec-zone-pair)# service-policy type inspect INSIDE_TO_INTERNET
+
+        R3(config)#zone-pair security CONFROOM_TO_INTERNET source CONFROOM destination INTERNET
+        R3(config-sec-zone-pair)#service-policy type inspect CONFROOM_TO_INTERNET
+
+    Associar interface a security zones
+        R3(config)# interface g0/0
+        R3(config-if)# zone-member security CONFROOM (associar interface gi0/0, á politica confrom)
+
+IPS
+    https://learningnetwork.cisco.com/s/question/0D53i00000Ksunu/ios-ips-enabled-vs-retired
+    
+    
+    
+
+LOGGING (syslog)
+    R1# 
+        type    "logging IP" -> ip do servidor que tem syslog
+        type    "logging trap 4" ->  nivel de log para enviar, neste caso envia logs nivel 4 e inferior
+    R1#
+        type    "service timestamps log datetime msec" -> incluir timestamps nos logs
+    
+
+CREATE USERS
+    R1(config)#
+        username user01 password ? -> cria utilizador com nivel de encriptação especificado
+        username user02 secret pass -> cria utilizador com nivel de encriptacao md5       
+
+
+SSH authentication
+    R1(config)#
+        line vty 0 4
+        login local <- define para usar local database
+
+    ENABLE AAA
+        R1(config)# aaa new-model <- ativa o aaa model globalmente
+        R1(config)# "aaa authentication login default local-case"  <- ativa para login o aaa default com case-sensitive
+        R1(config)# "aaa authentication login default local-case enable" <- ativar para login com password "Use enable password for authentication."
+        R1(config)# "aaa authentication login default group radius local-case" <- define para login usar servidor radius primeiro e depois a base de dados local (case-sensitive)
+        
+        R1(config)# "aaa authentication login SSH-LOGIN local-case enable" <- ativar para login 
+		
+		Line Config
+        R1(config-line)# "login authentication default" <- usa o metodo da lista "default" para autenticar
+        R1(config-line)#  
+    
+    TACACS
+        aaa authentication login default group tacacs+ local-case enable 
+        aaa authentication enable default group radius local-case enable
+        aaa authorization exec default group tacacs+ local if-authenticated 
+
+    ENABLE ROOT VIEW
+        R1# enable view (insert password)
+
+    CREATE new View
+        R1(config)# parser view admin <- criar view(vista) de admin
+        R1(config-view)# secret admin1pass <- colocar password na "vista"
+
+    show current view
+        R1# show parser view  <- ver qual vista está a ser usada
+
+
+
+    NAT estatico
+        R1(config)# ip nat inside source static INSIDE_address OUTSIDE_ADDRESS
+        R1(config)# interface s0/0/0 (interface para internet)
+        R1(config-if)# ip nat outside 
+        R1(config)# interface gi0/0 (interface para LAN)
+        R1(config-if)# ip nat inside 
+        
+
+        R1# show crypto isakmp policy (mostrar politicas de )
+    VPN IPSEC
+        Criar ACL do trafego a passar por VPN
+        R1(config)# access-list 110 permit ip 192.168.1.0 0.0.0.255 192.168.3.0 0.0.0.255 (example)
+
+        CRIAR IKE Phase 1 ISAKMP 
+            R1(config)# crypto isakmp policy 10
+            R1(config-isakmp)# encryption aes 256
+            R1(config-isakmp)# authentication pre-share
+            R1(config-isakmp)# hash md5 
+            R1(config-isakmp)# group 5
+            R1(config-isakmp)# exit
+            R1(config)# crypto isakmp key vpnpa55 address 10.2.2.2
+
+        IKE Phase 2 IPsec 
+            R1(config)# crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac
+            R1(config)# crypto map VPN-MAP 10 ipsec-isakmp
+            R1(config-crypto-map)# description VPN connection to R3
+            R1(config-crypto-map)# set peer 10.2.2.2 (IP of destination router)
+            R1(config-crypto-map)# set pfs group5 (perfect secrecy)
+            R1(config-crypto-map)# set transform-set VPN-SET (ID dado do ipsec transform-set)
+            R1(config-crypto-map)# match address 110 (match ACL pode ser com nome)
+            R1(config-crypto-map)# set security-association lifetime seconds 900 (default IPsec security association life time)
+            R1(config-crypto-map)# exit
+        
+        ASSIGN TO INTERFACE
+            R1(config)# interface s0/0/0
+            R1(config-if)# crypto map VPN-MAP
+
+        VIEW INFORMATION
+            R1# show crypto ipsec sa
+
+        
